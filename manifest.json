@@ -1,0 +1,14 @@
+{
+    "manifest_version":2,
+    "name": "Tabs For Later",
+    "description": "This extension stores browser sessions for later use",
+    "version": "1.0",
+    "browser_action": {
+        "default_icon": "s.png",
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "storage", 
+        "tabs"
+    ]
+}

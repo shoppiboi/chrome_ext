@@ -1,0 +1,83 @@
+body {
+    background-color:   white;
+}
+
+.container {
+    height: 200px;
+    width:  360px;
+    margin: 0;
+    position:absolute;
+}
+
+.title {
+    height: 40px;
+    width: 360px;
+    position: relative;
+    margin: 0;
+    border-bottom: 1px solid rgb(200, 200, 200);
+}
+
+#titletext {
+    padding-left: 15px;
+    line-height: 30px;
+}
+
+.content {
+    position:relative;
+}
+
+.sessions {
+    position: relative;
+
+    height: 350px;
+    width: 360px;
+
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#nosessiontext {
+    display: none;
+    font-style: italic;
+    font-size: 18px;
+    text-align: center;
+    padding-top: 10px;
+    color: rgb(122, 122, 122);
+}
+
+.sessiondiv {
+    height: 50px;
+    width: 360px;
+    position:   relative;
+    border-bottom: 1px solid rgb(200, 200, 200);
+    margin: 0;
+
+    cursor:pointer;
+}
+
+.sessiontitle {
+    padding-left: 15px;
+    line-height: 25px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.tabcount {
+    padding-left: 15px;
+    font-size: 13px;
+}
+
+.footer {
+    position: relative;
+    height: 45px;
+    border-top: 1px solid rgb(207, 207, 207);
+}
+
+#savebutton {
+    height: 46px;
+    width: 360px;
+
+    font-weight: bold;
+    font-size: 15px;
+}
