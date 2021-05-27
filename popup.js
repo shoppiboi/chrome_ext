@@ -19,11 +19,11 @@ class Site{
 class Session{
     constructor(name){
         this.name = name;
-        this.sites = [0, 1, 2];
+        this.sites = [];
     }
 
-    addSite(tabData){
-        this.sites.push(tabData);
+    addSite(tabSite){
+        this.sites.push(tabSite);
     }
 
     deleteSite(tabData){
@@ -60,100 +60,163 @@ class Session{
     }
 }
 
-const sessions = [];
+const cachedSessions = [];
+
+function getTabs() {
+    
+    return new Promise((resolve, reject) => {
+        try {
+            chrome.tabs.query({
+                currentWindow: true
+            }, function(tabs) {
+                let siteArray = [];
+                for (var i = 0; i < tabs.length; i++) {
+                    siteArray.push(new Site(tabs[i].title, tabs[i].url));
+                }
+                resolve(siteArray);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+
+    // var tabTitleLinks = [];
+
+    // let tabs = await chrome.tabs.query({currentWindow: true}, function(result) {
+
+    //     let siteArray = [];
+
+    //     for (var i = 0; i < result.length; i++){
+    //         siteArray.push(new Site(result[i].title, result[i].url));
+    //     }
+    //     Object.assign(tabTitleLinks, siteArray);
+    // });
+
+    // var tabTitleLinks = [];
+
+    // // for (var i = 0; i < tabs.; i++) {
+        
+    // //     console.log(i);
+    // //     console.log(tab);
+    // //     tabTitleLinks.push(new Site(tab.title, tab.url));
+    // // }
+
+    // return tabTitleLinks;
+}
+
+// //  locally stores the Sessions list
+// function getSessions() {
+//     return newchrome.storage.local.get('sessions', (results) => {
+//         Object.assign(sessions, results.sessions);
+//     });
+// }
 
 function getSessions() {
-    chrome.storage.local.get('sessions', (results) => {
-        Object.assign(sessions, results.sessions);
+    return new Promise((resolve, reject) => {
+        try {
+            chrome.storage.local.get('sessions', function(results) {
+                console.log(results.sessions);
+                resolve(results.sessions);
+            });
+        } catch (e) {
+            reject(-1);
+        }
     });
 }
 
-function updateStorage() {
-    chrome.storage.local.set({'sessions': sessions}, function(){});
+//  updates the Sessions list in the Storage API
+function updateStorage(updatedSessions) {
+    return new Promise((resolve, reject) => {
+        try {
+            chrome.storage.local.set({'sessions': updatedSessions}, function(results){
+                console.log("stored " + results);
+            });
+            resolve(0);
+        } catch(e){
+            reject(1);
+        }
+    });
 }
 
-function createSession(){
+//  after pressing the button, a new Session is created with a default name
+async function createSession(){
 
-    // var store = chrome.storage.local;
-
-    //  dummy sessions for the sake of testing
-    // chrome.storage.local.set(
-    //     {
-    //         'sessions': [
-    //             new Session("gang"), 
-    //             new Session("test"), 
-    //             new Session("bloop")
-    //         ]
-    //     }, function(){}
-    // );
-
-    var newName = 'Session ' + (sessions.length + 1);
-
-    sessions.push(new Session(newName));
-    updateStorage();
+    var sessions = await getSessions(); //  wait for the async function to return sessions
     
-    // store.get(['sessions'], function(results) {
-    //     console.log(results.sessions);
+    //  TESTING USE OF A CACHED SESSION ARRAY
 
-    //     var x = (
-    //         (!results.sessions) ? 0 : results.sessions.length
-    //     );
-        
-    //     var newName = 'Session ' + (x + 1);
+    // if (typeof(sessions) != 'undefined') {
+    //     cachedSessions = [];
+    //     for (x in sessions) {
+    //         cachedSessions.push(sessions[x])
+    //     }
+    //     console.log(cachedSessions); // for testing
+    // }
 
-    //     console.log(x);
-    //     console.log(newName);
+    //  TESTING USE OF A CACHED SESSION ARRAY
 
-    //     var updatedSessionList = ((!results.sessions) ? [] : results.sessions);
+    //  if Promise in getSessions() returned an 'undefined' object, then no sessions are saved in the Storage API
+    //  so newName becomes Session 1. Otherwise just increment as usual.
+    var newName = 'Session ' + ((typeof(sessions) == 'undefined') ? 1 : (sessions.length + 1));
 
-    //     updatedSessionList.push(new Session(newName));
+    var newSession = new Session(newName);
 
-    //     store.set({'sessions': updatedSessionList}, function(){});   
+    //  TESTING PROMISE VS. AWAIT
+
+    var newTabs = await getTabs();
+
+    // getTabs().then(tabs => {
+    //     newTabs = tabs;
+    //     console.log(newTabs);
+    //     cachedSession.push(newTabs);
     // });
 
-    // store.get(['sessions'], function(results) {
-    //     console.log(results.sessions);
-    // });
+    //  TESTING PROMISE VS. AWAIT
+
+    for (tab in newTabs) {
+        newSession.addSite(newTabs[tab]);
+    }
+
+    sessions.push(newSession);
+    // cachedSessions.push(newSession); // add the new session to the cached Sessions-list
+    console.log(sessions);
+    
+    await updateStorage(sessions);
+    updateSessions(sessions);
 }
 
+//  clears all <div> elements under the "session-cont" element so 
+//  the list can be re-generated with any updates made to the sessions
 function clearDivs(sessionContainer) {
+    //  keeps removing child nodes until there are no more left
     while (sessionContainer.firstChild) {
         sessionContainer.removeChild(sessionContainer.firstChild);
     }
 }
 
-function initialLoad() {
-    chrome.storage.local.get(['sessions'], function(results) {
+//  retrieves the Sessions-list from the Storage API and sets the "No Sessions" text accordingly
+function initialLoad(initialSessions) {
+    let noSessionText = document.getElementById('nosessiontext'); // get the text element from the HTML document
 
-        let noSessionText = document.getElementById('nosessiontext');
-
-        if (results.sessions.length > 0) {
-            console.log("wassup");
-            noSessionText.style.display = 'none';
-            loadDivElements(results.sessions);
-        } else {
-            console.log("empty");
-            noSessionText.style.display = 'block';    
-        }
-
-    });
+    if (initialSessions.length > 0) {
+        noSessionText.style.display = 'none'; // remove the "No Sessions" text
+        loadDivElements(initialSessions);
+    } else {
+        noSessionText.style.display = 'block';    
+    }
 }
 
-function updateSessions() {    
-
-    console.log(sessions);
-    console.log(sessions.length);
-
+function updateSessions(newSessions) {    
     clearDivs(document.querySelector('.session-cont'));
+
+    console.log(newSessions);
 
     let noSessionText = document.getElementById('nosessiontext');
 
-    if (sessions.length) {
-        console.log("not empty");
+    if (typeof(newSessions) != 'undefined') {
         noSessionText.style.display = 'none';
-        loadDivElements(sessions);
+        loadDivElements(newSessions);
     } else {
-        console.log('empty');
         noSessionText.style.display = 'block';
     }
 }
@@ -163,7 +226,6 @@ function loadDivElements(allSessions) {
     var sessionContainerRef = document.querySelector('.session-cont');
 
     for (var i = 0; i < allSessions.length; i++) {
-        console.log(i);
         sessionContainerRef.appendChild(
             createSessionDiv(allSessions[i].name, allSessions[i].sites.length)
         );
@@ -189,16 +251,27 @@ function createSessionDiv(sessionName, sessionTabCount){
     return newDiv;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    initialLoad();
-    getSessions();
+document.addEventListener('DOMContentLoaded', async function() {
 
+    // chrome.storage.local.clear();
+
+    //  initialLoad will retrieve all current session information from the Storage API
+    //  any other loads of the sessions-list will be done using the cached "sessions" constant
+    //  on updateSessions()
+
+    let initialSessions = await getSessions();
+
+    console.log(initialSessions);
+
+    initialLoad((typeof(initialSessions) == 'undefined') ? [] : initialSessions);
+
+    // cachedSessions = await getSessions();
+    
     var link = document.getElementById('savebutton');
 
     //  call the createSession() function when the Save button is clicked
     link.addEventListener('click', () => {
-        createSession(); 
-        updateSessions();
-        // location.reload();
+        createSession();
+        // updateSessions(createSession());
     }, false);
 })
