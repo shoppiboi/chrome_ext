@@ -1,17 +1,22 @@
 
 //  object that contains the title-url pair for a tab
 class Site{
-    constructor(title, url){
+    constructor(title, url, icon){
         this.title = title;
         this.url = url;
+        this.icon = icon;
     }
 
-    displayTitle(){
-        console.log(this.title);
+    getName(){
+        return this.title;
     }
 
-    displayUrl(){
-        console.log(this.url);
+    getUrl(){
+        return this.url;
+    }
+
+    getIcon(){
+        return this.icon;
     }
 }
 
@@ -33,36 +38,9 @@ class Session{
     getSiteCount(){
         return this.sites.length;
     }
-
-    //  testing purposes
-    //  outputs the titles and urls for all contained sites to the Console
-    displaySites(){
-        for (var i = 0; i < this.sites.length; i++){
-            this.sites[i].displayTitle();
-            this.sites[i].displayUrl();
-        }
-    }
-
-    //  export all contained information into a storable format for chrome.storage
-    exportSession(){
-        //  format: name/tab1.title, tab1.url/tab2.title, tab2.url/...tabn.title, tabn.url
-        let _export = this.name + "|";
-        
-        for (var i = 0; i < this.sites.length; i++){
-            _export = _export.concat(this.sites[i].title, ",", this.sites[i].url, "|");
-        }
-
-        console.log(_export);
-    }
-
-    //  parse an imported session from chrome.storage back into class format
-    importSession(){
-    }
 }
 
-const cachedSessions = [];
-
-function getTabs() {
+function getTabs() { 
     
     return new Promise((resolve, reject) => {
         try {
@@ -71,7 +49,7 @@ function getTabs() {
             }, function(tabs) {
                 let siteArray = [];
                 for (var i = 0; i < tabs.length; i++) {
-                    siteArray.push(new Site(tabs[i].title, tabs[i].url));
+                    siteArray.push(new Site(tabs[i].title, tabs[i].url, tabs[i].favIconUrl));
                 }
                 resolve(siteArray);
             });
@@ -79,43 +57,12 @@ function getTabs() {
             reject(e);
         }
     });
-
-    // var tabTitleLinks = [];
-
-    // let tabs = await chrome.tabs.query({currentWindow: true}, function(result) {
-
-    //     let siteArray = [];
-
-    //     for (var i = 0; i < result.length; i++){
-    //         siteArray.push(new Site(result[i].title, result[i].url));
-    //     }
-    //     Object.assign(tabTitleLinks, siteArray);
-    // });
-
-    // var tabTitleLinks = [];
-
-    // // for (var i = 0; i < tabs.; i++) {
-        
-    // //     console.log(i);
-    // //     console.log(tab);
-    // //     tabTitleLinks.push(new Site(tab.title, tab.url));
-    // // }
-
-    // return tabTitleLinks;
 }
-
-// //  locally stores the Sessions list
-// function getSessions() {
-//     return newchrome.storage.local.get('sessions', (results) => {
-//         Object.assign(sessions, results.sessions);
-//     });
-// }
 
 function getSessions() {
     return new Promise((resolve, reject) => {
         try {
             chrome.storage.local.get('sessions', function(results) {
-                console.log(results.sessions);
                 resolve(results.sessions);
             });
         } catch (e) {
@@ -128,9 +75,7 @@ function getSessions() {
 function updateStorage(updatedSessions) {
     return new Promise((resolve, reject) => {
         try {
-            chrome.storage.local.set({'sessions': updatedSessions}, function(results){
-                console.log("stored " + results);
-            });
+            chrome.storage.local.set({'sessions': updatedSessions}, function(){});
             resolve(0);
         } catch(e){
             reject(1);
@@ -142,55 +87,33 @@ function updateStorage(updatedSessions) {
 async function createSession(){
 
     var sessions = await getSessions(); //  wait for the async function to return sessions
-    
-    //  TESTING USE OF A CACHED SESSION ARRAY
 
-    // if (typeof(sessions) != 'undefined') {
-    //     cachedSessions = [];
-    //     for (x in sessions) {
-    //         cachedSessions.push(sessions[x])
-    //     }
-    //     console.log(cachedSessions); // for testing
-    // }
-
-    //  TESTING USE OF A CACHED SESSION ARRAY
+    if (typeof(sessions) == 'undefined') {
+        sessions = [];
+    }
 
     //  if Promise in getSessions() returned an 'undefined' object, then no sessions are saved in the Storage API
     //  so newName becomes Session 1. Otherwise just increment as usual.
     var newName = 'Session ' + ((typeof(sessions) == 'undefined') ? 1 : (sessions.length + 1));
-
     var newSession = new Session(newName);
 
-    //  TESTING PROMISE VS. AWAIT
-
     var newTabs = await getTabs();
-
-    // getTabs().then(tabs => {
-    //     newTabs = tabs;
-    //     console.log(newTabs);
-    //     cachedSession.push(newTabs);
-    // });
-
-    //  TESTING PROMISE VS. AWAIT
-
-    for (tab in newTabs) {
-        newSession.addSite(newTabs[tab]);
+    for (x in newTabs) {
+        newSession.addSite(newTabs[x]);
     }
 
     sessions.push(newSession);
-    // cachedSessions.push(newSession); // add the new session to the cached Sessions-list
-    console.log(sessions);
-    
+
     await updateStorage(sessions);
     updateSessions(sessions);
 }
 
 //  clears all <div> elements under the "session-cont" element so 
 //  the list can be re-generated with any updates made to the sessions
-function clearDivs(sessionContainer) {
+function clearDivs(container) {
     //  keeps removing child nodes until there are no more left
-    while (sessionContainer.firstChild) {
-        sessionContainer.removeChild(sessionContainer.firstChild);
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
     }
 }
 
@@ -227,26 +150,124 @@ function loadDivElements(allSessions) {
 
     for (var i = 0; i < allSessions.length; i++) {
         sessionContainerRef.appendChild(
-            createSessionDiv(allSessions[i].name, allSessions[i].sites.length)
+            createSessionDiv(i, allSessions[i].name, allSessions[i].sites.length)
         );
     }
 }
 
+async function sessionClick(sessionIndex) {
+
+    tabs = (await getSessions())[sessionIndex];
+    
+    var sessionContainerRef = document.querySelector('.session-cont');
+    sessionContainerRef.style.display = 'none';
+
+    var footerRef = document.querySelector('.footer');
+    footerRef.style.display = 'none';
+
+    var tabContainerRef = document.querySelector('.tab-cont');
+    tabContainerRef.style.display = 'block';
+
+    var sessionHeader = document.querySelector('.sessionheader');
+    sessionHeader.style.display = 'none';
+
+    var frontHeader = document.querySelector('.tabheader');
+    frontHeader.style.display = 'block'; 
+    
+
+    // var sessionTitleText = document.getElementById('sessiontitletext');
+    // sessionTitleText.style.display = 'block';
+    // sessionTitleText.innerHTML = tabs.name;
+
+    var leftContainer = document.querySelector('.leftcontainer');
+    leftContainer.style.display = 'block';
+
+    // var backArrow = document.getElementById('leftarrow');
+
+    for (var i = 0; i < tabs.sites.length; i++) {
+        var site = tabs.sites[i];
+        console.log(site);
+        console.log(site.url);
+        tabContainerRef.appendChild(
+            createTabDiv(site.title, site.url)
+        );
+    }
+}
+
+async function backClick(sessionIndex) {
+
+    // tabs = (await getSessions())[sessionIndex];
+    
+    var sessionContainerRef = document.querySelector('.session-cont');
+    sessionContainerRef.style.display = 'block';
+
+    // var footerRef = document.querySelector('.footer');
+    // footerRef.style.display = 'none';
+
+    // var tabContainerRef = document.querySelector('.tab-cont');
+    // tabContainerRef.style.display = 'block';
+
+    // var sessionHeader = document.querySelector('.sessionheader');
+    // sessionHeader.style.display = 'none';
+
+    // var frontHeader = document.querySelector('.tabheader');
+    // frontHeader.style.display = 'block'; 
+    
+
+    // var sessionTitleText = document.getElementById('sessiontitletext');
+    // sessionTitleText.style.display = 'block';
+    // sessionTitleText.innerHTML = tabs.name;
+
+    // var leftContainer = document.querySelector('.leftcontainer');
+    // leftContainer.style.display = 'block';
+
+    // // var backArrow = document.getElementById('leftarrow');
+
+    // for (var i = 0; i < tabs.sites.length; i++) {
+    //     var site = tabs.sites[i];
+    //     console.log(site);
+    //     console.log(site.url);
+    //     tabContainerRef.appendChild(
+    //         createTabDiv(site.title, site.url)
+    //     );
+    // }
+}
+
 //  creates and returns a div element with the set parameters
-function createSessionDiv(sessionName, sessionTabCount){
+function createSessionDiv(sessionIndex, sessionName, sessionTabCount){
     var newDiv = document.createElement('div');
+    newDiv.id = sessionIndex;
+    newDiv.onclick = function(){sessionClick(newDiv.id)};
     newDiv.className = 'sessiondiv';
 
     var title = document.createElement('div');
-    title.className = 'sessiontitle'
+    title.className = 'sessiontitle';
     title.innerHTML = sessionName;
     
     var tabCount = document.createElement('div');
     tabCount.className = 'tabcount';
-    tabCount.innerHTML = "Number of tabs: " + sessionTabCount;
+    tabCount.innerHTML = 'Number of tabs: ' + sessionTabCount;
     
     newDiv.appendChild(title);
     newDiv.appendChild(tabCount);
+
+    return newDiv;
+}   
+
+function createTabDiv(tabName, tabLink) {
+    var newDiv = document.createElement('div');
+    newDiv.className = 'sessiondiv';
+
+    var title = document.createElement('div');
+    title.className = 'tabtitle';
+    title.innerHTML = tabName;
+
+    var tabUrl = document.createElement('div');
+    tabUrl.className = 'taburl';
+    tabUrl.innerHTML = "URL: " + tabLink;
+
+    newDiv.appendChild(title);
+    newDiv.appendChild(tabUrl);
 
     return newDiv;
 }
@@ -255,23 +276,27 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // chrome.storage.local.clear();
 
+    var tabContainerRef = document.querySelector('.tab-cont');
+    tabContainerRef.style.display = 'none';
+
     //  initialLoad will retrieve all current session information from the Storage API
     //  any other loads of the sessions-list will be done using the cached "sessions" constant
     //  on updateSessions()
 
     let initialSessions = await getSessions();
-
-    console.log(initialSessions);
-
     initialLoad((typeof(initialSessions) == 'undefined') ? [] : initialSessions);
-
-    // cachedSessions = await getSessions();
     
     var link = document.getElementById('savebutton');
 
     //  call the createSession() function when the Save button is clicked
     link.addEventListener('click', () => {
         createSession();
-        // updateSessions(createSession());
     }, false);
+
+    var back = document.querySelector('.leftcontainer');
+
+    back.addEventListener('click', () => {
+        backClick()
+    }, false);
+
 })

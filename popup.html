@@ -6,7 +6,7 @@
 
     <style>
         body {
-            height: 400px;
+            height: 435px;
             width: 360px;
             margin: 0;
         }
@@ -15,20 +15,38 @@
 <body>
     <script src="popup.js"></script>
     <link rel="stylesheet" href="popup.css">
-    <!-- <button id="link"><img src="disk.png"></button> -->
 </body>
 
 <div id="container">
-    <div class="title">
-        <h2 id=titletext>Tabs For Later</h2>   
+    <div class="header">
+        <div class=sessionheader>
+            <h2 id=titletext>Tabs For Later</h2>   
+        </div>
+
+        <div class=tabheader>
+            <div class=leftcontainer>
+                <img id=leftarrow src=arrow.svg>
+            </div>
+        </div>
+
+        <!-- <div id=sessionheader>
+
+
+            <div class=middlecontainer>
+                <h2 id=sessiontitletext></h2>
+            </div> -->
+
+            <!-- <div class=rightcontainer></div>
+        </div> -->
     </div>    
     
     <div class="content">
-
         <div class="sessions">
             <div id="nosessiontext">No sessions yet.</div>
-            <div class="session-cont">
-            </div>
+
+            <div class="tab-cont"></div>
+
+            <div class="session-cont"></div>
         </div>
     </div>
 
