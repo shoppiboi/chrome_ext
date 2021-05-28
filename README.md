@@ -1,4 +1,4 @@
-# Tabs For Later (Chrome Extension) 
+# Tabs For Later
 
 *Made as a tool for my own use; this Chrome extension allows users to store and retrieve browser sessions for later use. Acts similar to the "Continue where you left off" setting that comes with Chrome, but what sets this extension apart from the Setting is the fact that a user isn't limited to only one browser session, as the extension supports the storage of several sessions.*
 
