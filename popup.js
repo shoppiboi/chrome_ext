@@ -6,18 +6,6 @@ class Site{
         this.url = url;
         this.icon = icon;
     }
-
-    getName(){
-        return this.title;
-    }
-
-    getUrl(){
-        return this.url;
-    }
-
-    getIcon(){
-        return this.icon;
-    }
 }
 
 //  object that contains the tab information for any given session
@@ -34,14 +22,9 @@ class Session{
     deleteSite(tabData){
         //  insert code to delete website info from  chrome.storage
     }
-
-    getSiteCount(){
-        return this.sites.length;
-    }
 }
 
-function getTabs() { 
-    
+function getTabs() {   
     return new Promise((resolve, reject) => {
         try {
             chrome.tabs.query({
@@ -85,7 +68,6 @@ function updateStorage(updatedSessions) {
 
 //  after pressing the button, a new Session is created with a default name
 async function createSession(){
-
     var sessions = await getSessions(); //  wait for the async function to return sessions
 
     if (typeof(sessions) == 'undefined') {
@@ -132,9 +114,9 @@ function initialLoad(initialSessions) {
 function updateSessions(newSessions) {    
     clearDivs(document.querySelector('.session-cont'));
 
-    console.log(newSessions);
-
     let noSessionText = document.getElementById('nosessiontext');
+
+    console.log(newSessions);
 
     if (typeof(newSessions) != 'undefined') {
         noSessionText.style.display = 'none';
@@ -182,8 +164,6 @@ async function sessionClick(sessionIndex) {
 
     for (var i = 0; i < tabs.sites.length; i++) {
         var site = tabs.sites[i];
-        console.log(site);
-        console.log(site.url);
         tabContainerRef.appendChild(
             createTabDiv(site.title, site.url)
         );
@@ -214,11 +194,31 @@ async function backClick(sessionIndex) {
     sessionTitleText.innerHTML = 'default';
 }
 
+async function openClick(sessionIndex) {
+
+    tabs = (await getSessions())[sessionIndex];
+
+    for (x in tabs.sites) {
+        openTab(tabs.sites[x]['url']);
+    }
+}
+
+function openTab(tabUrl) {
+    chrome.tabs.create({url: tabUrl});
+}
+
+async function deleteAllClick() {
+    chrome.storage.local.clear(); // clear all sesssions 
+
+    //  call updateSessions without passing any parameters on purpose
+    //  so the variable is set as 'undefined'
+    updateSessions();
+}
+
 //  creates and returns a div element with the set parameters
 function createSessionDiv(sessionIndex, sessionName, sessionTabCount){
     var newDiv = document.createElement('div');
     newDiv.id = sessionIndex;
-    newDiv.onclick = function(){sessionClick(newDiv.id)};
     newDiv.className = 'sessiondiv';
 
     var title = document.createElement('div');
@@ -229,6 +229,18 @@ function createSessionDiv(sessionIndex, sessionName, sessionTabCount){
     tabCount.className = 'tabcount';
     tabCount.innerHTML = 'Number of tabs: ' + sessionTabCount;
     
+    var editIcon = document.createElement('img');
+    editIcon.className = 'editicon'
+    editIcon.src = 'svgs/edit.svg';
+    editIcon.onclick = function(){sessionClick(newDiv.id)};
+
+    var openIcon = document.createElement('img');
+    openIcon.className = 'openicon';
+    openIcon.src = 'svgs/open.svg';
+    openIcon.onclick = function(){openClick(newDiv.id)};
+
+    newDiv.appendChild(editIcon);
+    newDiv.appendChild(openIcon);
     newDiv.appendChild(title);
     newDiv.appendChild(tabCount);
 
@@ -277,6 +289,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     back.addEventListener('click', () => {
         backClick()
     }, false);
+
+    var trashAll = document.getElementById('trashall');
+    trashAll.addEventListener('click', () => {
+        deleteAllClick();
+    });
 
     var exit1 = document.getElementById('exit1');
     exit1.addEventListener('click', () => {
