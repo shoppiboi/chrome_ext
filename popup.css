@@ -80,13 +80,21 @@ body {
 }
 
 #leftarrow {
-    padding-top: 10px;
+    padding-top: 8px;
     padding-left: 10px;
     width: 22.5px;
 }
 
 .exit {
     width: 18px;
+    cursor: pointer;
+    padding-right: 6.5px;
+}
+
+#trashall {
+    margin: 0;
+    width: 22px;
+    padding-right: 18px;
     cursor: pointer;
 }
 
@@ -128,7 +136,6 @@ body {
     overflow: hidden;
     overflow-x: hidden;
     white-space: nowrap;
-    cursor:pointer;
 }
 
 .sessiontitle {
@@ -146,13 +153,31 @@ body {
 }
 
 .taburl {
-    padding-left: 15px;
-    font-size: 9px;
+    padding-left: 16px;
+    font-size: 11px;
 }
 
 .tabcount {
     padding-left: 15px;
     font-size: 13px;
+}
+
+.editicon {
+    margin: 0;
+    width: 18px;
+    float: right;
+    padding-top: 13px;
+    padding-right: 15px;
+    cursor: pointer;
+}
+
+.openicon {
+    margin: 0;
+    width: 18px;
+    float: right;
+    padding-top: 16px;
+    padding-right: 25px;
+    cursor: pointer;
 }
 
 .footer {
