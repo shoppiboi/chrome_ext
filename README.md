@@ -9,6 +9,11 @@ Note: I currently have no plans of publishing the extension to the Chrome Web St
 API used:
 - [Chrome API](https://developer.chrome.com/docs/extensions/reference/)
 
+### Upcoming Features List:
+- Renaming sessions
+- Editing the tabs inside sessions
+- Merging sessions
+
 # Gifs displaying the use of the extension:
 
 ### How to save a session: 
