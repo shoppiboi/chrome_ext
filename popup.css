@@ -9,7 +9,8 @@ body {
     position:absolute;
 }
 
-.title {
+.sessionheader {
+    display: block;
     height: 40px;
     width: 360px;
     position: relative;
@@ -18,8 +19,79 @@ body {
 }
 
 #titletext {
+    margin: 0;
     padding-left: 15px;
     line-height: 30px;
+    float: left;
+    display: block;
+    padding-top: 5px;
+}
+
+#sessiontitletext {
+    text-align: center;
+    line-height: 30px;
+    display: none;
+}
+
+.tabheader {
+    display: none;
+    height: 40px;
+    width: 360px;
+    position: relative;
+    margin: 0;
+    border-bottom: 1px solid rgb(200, 200, 200);
+}
+
+.leftcontainer {
+    float: left;
+    height: 30px;
+    width: 30px;
+    cursor:pointer;
+}
+
+.middlecontainer {
+    margin: 0;
+    display: 'none';
+    float: left;
+    height: 30px;
+    width: 300px;
+}
+
+#rightcontainer1 {
+    margin: 0;
+    height: 30px;
+    max-height: 20px;
+    float: right;
+    padding: 10px;
+}
+
+#rightcontainer2 {
+    margin: 0;
+    float: left;
+    height: 30px;
+    padding-top: 10px;
+    padding-left:2px;
+}
+
+#sessiontitletext {
+    display: block;
+    margin: 0;
+    padding-top: 5px;
+}
+
+#leftarrow {
+    padding-top: 10px;
+    padding-left: 10px;
+    width: 22.5px;
+}
+
+.exit {
+    width: 18px;
+    cursor: pointer;
+}
+
+#sessionheader {
+    display: 'none';
 }
 
 .content {
@@ -53,6 +125,9 @@ body {
     border-bottom: 1px solid rgb(200, 200, 200);
     margin: 0;
 
+    overflow: hidden;
+    overflow-x: hidden;
+    white-space: nowrap;
     cursor:pointer;
 }
 
@@ -61,6 +136,18 @@ body {
     line-height: 25px;
     font-weight: bold;
     font-size: 15px;
+}
+
+.tabtitle {
+    padding-left: 15px;
+    line-height: 25px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.taburl {
+    padding-left: 15px;
+    font-size: 9px;
 }
 
 .tabcount {
