@@ -173,14 +173,10 @@ async function sessionClick(sessionIndex) {
 
     var frontHeader = document.querySelector('.tabheader');
     frontHeader.style.display = 'block'; 
-    
 
-    // var sessionTitleText = document.getElementById('sessiontitletext');
-    // sessionTitleText.style.display = 'block';
-    // sessionTitleText.innerHTML = tabs.name;
-
-    var leftContainer = document.querySelector('.leftcontainer');
-    leftContainer.style.display = 'block';
+    var sessionTitleText = document.getElementById('sessiontitletext');
+    sessionTitleText.style.display = 'block';
+    sessionTitleText.innerHTML = tabs.name;
 
     // var backArrow = document.getElementById('leftarrow');
 
@@ -196,41 +192,26 @@ async function sessionClick(sessionIndex) {
 
 async function backClick(sessionIndex) {
 
-    // tabs = (await getSessions())[sessionIndex];
-    
     var sessionContainerRef = document.querySelector('.session-cont');
     sessionContainerRef.style.display = 'block';
 
-    // var footerRef = document.querySelector('.footer');
-    // footerRef.style.display = 'none';
+    var footerRef = document.querySelector('.footer');
+    footerRef.style.display = 'block';
 
-    // var tabContainerRef = document.querySelector('.tab-cont');
-    // tabContainerRef.style.display = 'block';
+    var tabContainerRef = document.querySelector('.tab-cont');
+    tabContainerRef.style.display = 'none';
 
-    // var sessionHeader = document.querySelector('.sessionheader');
-    // sessionHeader.style.display = 'none';
+    var sessionHeader = document.querySelector('.sessionheader');
+    clearDivs(tabContainerRef);
+    sessionHeader.style.display = 'block';
 
-    // var frontHeader = document.querySelector('.tabheader');
-    // frontHeader.style.display = 'block'; 
+    var frontHeader = document.querySelector('.tabheader');
+    frontHeader.style.display = 'none'; 
     
 
-    // var sessionTitleText = document.getElementById('sessiontitletext');
-    // sessionTitleText.style.display = 'block';
-    // sessionTitleText.innerHTML = tabs.name;
-
-    // var leftContainer = document.querySelector('.leftcontainer');
-    // leftContainer.style.display = 'block';
-
-    // // var backArrow = document.getElementById('leftarrow');
-
-    // for (var i = 0; i < tabs.sites.length; i++) {
-    //     var site = tabs.sites[i];
-    //     console.log(site);
-    //     console.log(site.url);
-    //     tabContainerRef.appendChild(
-    //         createTabDiv(site.title, site.url)
-    //     );
-    // }
+    var sessionTitleText = document.getElementById('sessiontitletext');
+    sessionTitleText.style.display = 'none';
+    sessionTitleText.innerHTML = 'default';
 }
 
 //  creates and returns a div element with the set parameters
@@ -287,16 +268,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     initialLoad((typeof(initialSessions) == 'undefined') ? [] : initialSessions);
     
     var link = document.getElementById('savebutton');
-
     //  call the createSession() function when the Save button is clicked
     link.addEventListener('click', () => {
         createSession();
     }, false);
 
     var back = document.querySelector('.leftcontainer');
-
     back.addEventListener('click', () => {
         backClick()
     }, false);
 
+    var exit1 = document.getElementById('exit1');
+    exit1.addEventListener('click', () => {
+        window.close()
+    }, false);
+    
+    var exit2 = document.getElementById('exit2');
+    exit2.addEventListener('click', () => {
+        window.close()
+    }, false);
 })
