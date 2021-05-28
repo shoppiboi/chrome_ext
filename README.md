@@ -4,6 +4,8 @@
 
 *Think: Bookmarks, but instead of one website, you can do it for several at once and store them under one name.*
 
+Note: I currently have no plans of publishing the extension to the Chrome Web Store. However, I will be providing a Zip file containing all the required files to make the extension run incase anyone is interested in trying it out.  
+
 API used:
 - [Chrome API](https://developer.chrome.com/docs/extensions/reference/)
 
